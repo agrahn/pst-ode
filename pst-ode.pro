@@ -117,8 +117,7 @@ end
     %scaling vector for step size adjustment (Numerical Recipies)
     eabsvect k1 eabsvect addvect {1e-30 add} forall xlength array astore
     % => [x(t)] [x(t+ddt) by RKF4] [err] [xscale]
-    /errmax 1e-30 def %maximum rel. error
-    edivvect {abs dup errmax gt {/errmax exch def}{pop} ifelse} forall errmax
+    edivvect eabsvect 1e-30 exch {max} forall %maximum rel. error
     % => [x(t)] [x(t+ddt) by RKF4] errmax
   end
 } bind def
@@ -126,8 +125,7 @@ end
           % [ state vector x(t) ] ODEINT => [ state vector x(t+dt) ]
   %decrease overshooting step size
   ode@dict
-    tcur ddt add tout sub tcur ddt add tout sub dt add mul 0 gt
-    {/ddt tout tcur sub def} if
+    tout tcur sub dup abs ddt abs lt {/ddt exch def}{pop} ifelse
   end
   RKF45
   ode@tol div dup 1 gt {
