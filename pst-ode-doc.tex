@@ -1,0 +1,305 @@
+\documentclass[11pt,english,BCOR10mm,DIV12,bibliography=totoc,parskip=false,smallheadings
+    headexclude,footexclude,oneside,dvips,UKenglish]{pst-doc}
+\usepackage[T1]{fontenc}
+%\usepackage{lmodern}
+  \usepackage[tt=false]{libertine} %override beramono (doesn't look like tt font)
+  \usepackage[libertine]{newtxmath}
+  %\usepackage[scaled=0.83]{luximono} %override beramono (doesn't look like tt font)
+\usepackage{attachfile2}
+\attachfilesetup{date={},color=1 0 0}
+\usepackage[latin1]{inputenc}
+\usepackage{amsmath}
+\usepackage{pst-3dplot}
+\usepackage{pst-plot}
+\usepackage{pstricks-add}
+\usepackage{pst-ode}
+\let\pstFV\fileversion
+\let\belowcaptionskip\abovecaptionskip
+
+\makeatletter
+\renewcommand*\l@subsection{\bprot@dottedtocline{2}{1.5em}{3.6em}}
+\renewcommand*\l@subsubsection{\bprot@dottedtocline{3}{3.8em}{4.5em}}
+\makeatother
+
+\def\bgImage{%
+\pstVerb{
+  /alpha 10 def
+  /beta 28 def
+  /gamma 8 3 div def
+}%
+\pstODEsolve[algebraic]{lorenzXYZ}{0 1 2}{0}{25}{2501}{10 10 30}{
+  alpha*(x[1]-x[0]) |
+  x[0]*(beta-x[2]) - x[1] |
+  x[0]*x[1] - gamma*x[2]
+}
+\begin{pspicture}(-8,-4)(6,12)
+\psset{unit=0.17cm,Alpha=160,Beta=15}
+\listplotThreeD{lorenzXYZ}
+\psset{unit=0.425cm,linestyle=dashed}
+\pstThreeDNode(0,0,0){O}
+\pstThreeDNode(0,0,5){Z}
+\pstThreeDNode(5,0,0){X}
+\pstThreeDNode(0,5,0){Y}
+\pstThreeDNode(-10,-10,0){A}
+\pstThreeDNode(-10,-10,20){B}
+\pstThreeDNode(-10,10,20){C}
+\pstThreeDNode(-10,10,0){D}
+\pstThreeDNode(10,-10,0){E}
+\pstThreeDNode(10,-10,20){F}
+\pstThreeDNode(10,10,20){G}
+\pstThreeDNode(10,10,0){H}
+\pspolygon(A)(B)(C)(D)
+\pspolygon(E)(F)(G)(H)
+\psline(A)(E)
+\psline(B)(F)
+\psline(D)(H)
+\psline(C)(G)
+\psset{linestyle=solid,linecolor=red}
+\psline{->}(O)(X)
+\psline{->}(O)(Y)
+\psline{->}(O)(Z)
+\end{pspicture}
+}
+\lstset{explpreset={pos=l,width=-99pt,overhang=0pt,hsep=\columnsep,vsep=\bigskipamount,rframe={}},
+    escapechar=?}
+\def\textat{\char064}%
+\let\verbI\texttt
+
+
+\def\parsedate#1/#2/#3\relax{ 
+  \def\year{#1} 
+  \def\month{#2} 
+  \def\day{#3} 
+} 
+
+\begin{document}
+%\author{Alexander Grahn}
+\author{Alexander Grahn}
+\expandafter\parsedate\filedate\relax %set current date to package date
+\title{pst-ode\\[4ex]}
+\subtitle{A PSTricks package for solving initial value problems for sets of Ordinary Differential Equations (ODE),  v\pstFV\\[2ex]\url{https://github.com/agrahn/pst-ode}}
+\maketitle
+
+\tableofcontents
+
+%\clearpage
+\begin{abstract}
+	\noindent The \LPack{pstricks-add} package already provides \Lcs{psplotDiffEqn} for solving ODEs. However, as its name suggests, the macro always produces a plot of the computed result. While any number of coupled differential equations can be integrated simultaneously, only two-dimensional plots are supported. The user has to select the two components of the computed state vectors to be used in the plot. Package \LPack{pst-ode} separates solving the equations from plotting the result. The result is stored as a \PS{} object and can be plotted later using macros from other PSTricks packages, such as \Lcs{listplot} (\LPack{pst-plot}) and \Lcs{listplotThreeD} (\LPack{pst-3dplot}), or be further processed by user-defined \PS{} procedures. Optionally, the computed state vectors can be written as a table to a text file.
+
+Package \LPack{pst-ode} uses the Runge-Kutta-Fehlberg (RKF45) method with automatic step size control for integrating the differential equations. Thus, the precision of the result does not depend on the number of plot points specified, as it would be the case with the classical Runge-Kutta (RK4) method.
+\end{abstract}
+
+\section{Introduction}
+An initial value problem involves finding the solution $\mathbf{x}(t)$ of a set of first order differential equations
+\begin{equation}
+	\frac{\mathrm{d}\mathbf{x}}{\mathrm{d}t}=\mathbf{f}(t,\mathbf{x})
+\end{equation}
+by integrating them with respect to the independent variable $t$ starting at $t_0$ up to $t_\mathrm{e}$. If the set consists of $n$ differential equations,
+a vector of initial conditions
+\begin{equation}
+	\mathbf{x}(t_0)=\mathbf{x}_0
+\end{equation}
+of the same length $n$ is required. For $n=1$ the initial value problem is one-dimensional:
+\begin{gather}
+	\frac{\mathrm{d}x}{\mathrm{d}t}=f(t,x)\quad\text{for}\ t \in [t_0, t_\mathrm{e}]\text{, where}\label{eq:1dode}\\
+	x(t_0) = x_0.\label{eq:1ini}
+\end{gather}
+
+Instead of producing analytical expressions of the solution functions $\mathbf{x}(t)$, the numerical method gives only approximate values $\mathbf{x}_i$ at $N$ discrete points $t_i$ of the integration interval $I=[t_0, t_\mathrm{e}]$:
+\begin{equation}
+\mathbf{x}_i\approx\mathbf{x}(t_i).
+\end{equation}
+The computed approximations $\mathbf{x}_i$ of the solution as well as the initial condition vector $\mathbf{x}_0$ are called `state vectors'. In the case of a single equation problem, Eqs.~\eqref{eq:1dode}, \eqref{eq:1ini}, the state vectors have only one component.
+
+\section{Commands}
+\begin{BDef}
+	\Lcs{pstODEsolve}\OptArgs\Largb{result}\Largb{output format}\Largb{$t_0$}\Largb{$t_\mathrm{e}$}\Largb{$N$}\Largb{$\mathbf{x}_0$}\Largb{$\mathbf{f}(t,\mathbf{x})$}
+\end{BDef}
+is the main user command for solving initial value problems.
+
+The first mandatory argument \Larg{result} is a simple identifier composed of letters and possibly numbers. It is used to create a \PS{} object of the same name, which takes the computed state vectors $\mathbf{x}_i$, formatted according to the second argument \Larg{output format}, as a long list of values. \Larg{result} can be directly used as the \Larg{data} argument of \Lcs{listplot}\Largb{data} (package \LPack{pst-plot}) or \Lcs{listplotThreeD}\Largb{data} (package \LPack{pst-3dplot}). When put on the \PS{} operand stack, \Larg{result} is immediately executed, that is, the list of values contained in \Larg{result} is pushed onto the operand stack. The scope of \Larg{result} is global and thus its content survives page breaks.
+
+The second argument \Larg{output format} determines which of the components of the state vectors $\mathbf{x}_i$ and possibly the independent variable $t$ are stored into \Larg{result}. \Larg{output format} can be specified in two different formats, depending on the setting of the command option \Lkeyword{algebraicOutputFormat}.
+If \Lkeyword{algebraicOutputFormat} is set, calculations can be made on the components of the computed state vectors before writing them to \Larg{result}. Without option \Lkeyword{algebraicOutputFormat} the following applies: The keyword \Lkeyword{(t)} (parentheses required) inserts the integration parameter value $t_i$ into the result list; numbers (\Lkeyword{0}, \Lkeyword{1}, \Lkeyword{2}, \dots, $n-1$) in arbitrary order specify the components of vector $\mathbf{x}_i$ to be inserted, as well as their order of insertion. The elements of \Larg{output format} are to be separated by spaces. If option \Lkeyword{algebraicOutputFormat} is set, \Larg{output format} is a \Lkeyword{|}-separated list of algebraic expressions (infix notation) according to which the components of the output vector are to be calculated. In these algebraic expressions, the $n$ current state vector components can be referred to as \Lkeyword{x[0]}, \Lkeyword{x[1]}, \dots, \Lkeyword{x[}$n-1$\Lkeyword{]} or \Lkeyword{y[0]}, \Lkeyword{y[1]}, \dots, \Lkeyword{y[}$n-1$\Lkeyword{]}, and the current independent variable value as `\Lkeyword{t}'. In either case, there is no upper limit of the output vector length. It must have at least one element though.
+
+Arguments $t_0$ and $t_\mathrm{e}$ define the interval of integration $I=[t_0, t_\mathrm{e}]$. Both arguments accept expressions in infix or \PS{} (postfix, reverse polish) notation. Infix notation requires option \Lkeyword{algebraicT}.
+
+$N$ is the number of \emph{equally} spaced output points, including $t_0$ and $t_\mathrm{e}$; it must be $\ge 2$. In order to divide the interval of integration into $K$ output steps, $N$ must be set to $K+1$. Note that the precision of the solution does \emph{not} depend on $N$; internal integration steps are automatically inserted and resized according to the changes in the solution.
+
+$\mathbf{x}_0$ is a list of $n$ space separated initial values, one for each differential equation. Alternatively, $\mathbf{x}_0$ can be given as a \PS{} procedure pushing the initial values on the stack, or as an algebraic expression in infix notation where the elements are separated by `\Lkeyword{|}'. Infix notation requires option \Lkeyword{algebraicIC}. This argument can be left empty. In that case, the last computed state vector of a preceding \Lcs{pstODEsolve} call or a state vector that was set using the \Lcs{pstODEsetOrRestoreState} macro is used as initial condition. Of course, the number of equations $n$ must be the same as in the preceding calculation.
+
+$\mathbf{f}(t,\mathbf{x})$ is the right-hand side of the differential equations. Equations can be entered in either infix or \PS{} (postfix, reverse polish) notation. Infix notation requires option \Lkeyword{algebraic}, and equations have to be separated by `\Lkeyword{|}'. The $n$ current state vector components can be referred to as \Lkeyword{x[0]}, \Lkeyword{x[1]}, \dots, \Lkeyword{x[}$n-1$\Lkeyword{]} or \Lkeyword{y[0]}, \Lkeyword{y[1]}, \dots, \Lkeyword{y[}$n-1$\Lkeyword{]}, and the current independent variable value as `\Lkeyword{t}'. If given in \PS{} notation, the provided procedure must first pop the current state vector components in reverse order(!) from the operand stack and then push the first derivatives in regular order back to it. Again, the independent variable value can be accessed using `\Lkeyword{t}'.\\[1ex]
+\Lcs{pstODEsolve} accepts a few \OptArgs: \Lkeyword{append}, \Lkeyword{saveData}, \Lkeyword{algebraicOutputFormat}, \Lkeyword{algebraicT}, \Lkeyword{algebraicIC}, \Lkeyword{algebraic}, \Lkeyword{algebraicAll}, \Lkeyword{silent} and \Lkeyword{varsteptol}.
+
+With \Lkeyword{append}, the computed result is appended to \Larg{result} which must already exist, e.\, g. from a previous use of \Lcs{pstODEsolve}. Usually, the initial condition vector argument is left empty in order to continue integration from the last computed or from a restored state (see \Lcs{pstODEsetOrRestoreState}).
+
+If option \Lkeyword{saveData} is set, the formatted state vectors are written as a table to a textfile named `\Larg{result}\Lkeyword{.dat}'. Note that \Lkeyword{ps2pdf} must be called with option \Lkeyword{-dNOSAFER} to enable writing of external files.
+
+With \Lkeyword{algebraicOutputFormat}, the command argument \Larg{output format} is a \Lkeyword{|}-separated list of algebraic expressions in infix notation, according to which the output vector components are to be assembled before storing them into \Larg{result}. Default is to not use algebraic infix expressions. For details, see the description of \Larg{output format} above.
+
+With \Lkeyword{algebraicT}, the integration interval limits $t_0$ and $t_\mathrm{e}$ can be entered as algebraic expressions in infix notation, otherwise \PS{} (postfix, reverse polish) notation must be used. Of course, single rational numbers for  $t_0$ and $t_\mathrm{e}$ always work.
+
+With \Lkeyword{algebraicIC}, the initial condition vector $\mathbf{x}_0$ can be given in algebraic infix notation. Vector components have to be separated by `\Lkeyword{|}'. Default is \PS{} notation, i.\,e. space separated postfix expressions or rational numbers.
+
+With \Lkeyword{algebraic}, the right-hand side of differential equations $\mathbf{f}(t,\mathbf{x})$ can be given in infix notation. Algebraic infix expressions are to be separated by `\Lkeyword{|}'. Default is \PS{} notation.
+
+Option \Lkeyword{algebraicAll} is equivalent to setting all of \Lkeyword{algebraicOutputFormat}, \Lkeyword{algebraicT}, \Lkeyword{algebraicIC}, \Lkeyword{algebraic}.
+
+Option \Lkeyword{silent} suppresses the terminal output of stepping information.
+
+The tolerance for the automatic integration step size calculation can be set with \Lkeyword{varsteptol} \Lkeyword{=}\Larg{value}. The default value is \Lkeyword{1e-6}.
+
+In the case of integration step size underflow, which  is indicated by writing `\Lkeyword{!}' to the terminal during PS to PDF conversion, the computation stops prematurely before reaching $t_\mathrm{e}$. The current value of $t$ and the current state vector $\mathbf{x}$ are written to the terminal. Step size underflow may happen for stiff ODEs at some point along the integration interval $[t_0, t_\mathrm{e}]$.\\[1ex]
+%It may be necessary to enlarge it using this option in cases that fail with `\Lkeyword{error: step size underflow in ODEINT}'.\\[1ex]
+
+\begin{BDef}
+\Lcs{pstODEsaveState}\Largb{state}
+\end{BDef}
+is a user command to save the last computed state vector into a \PS{} object with global scope. \Larg{state} is an identifier composed of letters and possibly numbers which is used to create the \PS{} object of the same name. The object is executable, that is, it expands to the saved values of the state vector components. It can be used as the initial condition argument $\mathbf{x}_0$ of a later \Lcs{pstODEsolve} invocation, or to restore the state vector by means of \Lcs{pstODEsetOrRestoreState}.\\[1ex] 
+
+\begin{BDef}
+\Lcs{pstODEsetOrRestoreState}\Largb{state}
+\end{BDef}
+is a user command to set the current state vector from a user provided list of space separated values, or to restore a previously saved state. In the latter case, \Larg{state} is a \PS{} object previously created with \Lcs{pstODEsaveState}. After setting or restoring a state, \Lcs{pstODEsolve} can be called with an empty initial condition argument. Of course, the number of differential equations and the length of the set or restored state vector must match.
+
+\section{Examples}
+\subsection[Lorenz Attractor]{Lorenz Attractor (\textattachfile{lorenz.tex}{lorenz.tex})}
+The Lorenz Attractor depicted on the title page is governed by
+\begin{align*}
+  \frac{\mathrm{d}x}{\mathrm{d}t}& = \alpha (y-x)\\
+  \frac{\mathrm{d}y}{\mathrm{d}t}& = x(\beta-z)-y\\
+  \frac{\mathrm{d}z}{\mathrm{d}t}& = x y - \gamma z.
+\end{align*}
+This system of differential equations is known to display chaotic behaviour due to the non-linear combination (products) of the dependent functions $x(t)$, $y(t)$ and $z(t)$. The trajectory of solution is susceptible to slight changes in the initial conditions and hence to slight discrepancies in the computed intermediate state vectors, which in turn can be regarded as initial conditions for the continuation of the solution. This is known as the `butterfly effect', a term coined by Lorenz. Although an adaptive stepping algorithm is used, the solution of this initial problem \emph{does} therefore depend on the number of output points chosen. To some extent, this fact contrasts with the statement made in the abstract of this documentation. However, for linear problems which only know one distinct solution it still holds. In the present case, the values $\alpha=10$, $\beta=28$, $\gamma=8/3$ and the initial condition $\mathbf{x}_0=(10,10,30)$ where chosen. The integration parameter $t$ is running from  $0$ to $25$ and the state vector is output at $2501$ points of the integration interval.
+
+\begin{verbatim}
+\pstVerb{
+  /alpha 10 def
+  /beta 28 def
+  /gamma 8 3 div def
+}
+\pstODEsolve[algebraic]{lorenzXYZ}{0 1 2}{0}{25}{2501}{10 10 30}{
+  alpha*(x[1]-x[0]) |
+  x[0]*(beta-x[2]) - x[1] |
+  x[0]*x[1] - gamma*x[2]
+}
+\listplotThreeD{lorenzXYZ}
+\end{verbatim}
+As the plot is three-dimensional, all three components of the state vectors are stored in the \PS{} variable \Lkeyword{lorenzXYZ} by setting the \Larg{output format} argument to `\Lkeyword{0 1 2}'.
+
+\subsection[Charged particle movement in a vertical electrical field]{Charged particle movement in a vertical electrical field (\textattachfile{particle.tex}{particle.tex})}
+The trajectory $\mathbf{x}(t)$ of the particle shown below is governed by a set of three second order differential equations:
+\begin{subequations}	
+\begin{align}
+\ddot{x} &= \omega\dot{y}-\dfrac{\dot{x}}{\tau}\\
+\ddot{y} &= -\omega\dot{x}-\dfrac{\dot{y}}{\tau}\\
+\ddot{z} &= -\dfrac{\dot{z}}{\tau},
+\end{align}
+\end{subequations}	
+where $\omega$ and $\tau$ are constants. An initial value problem of this type needs $3\times2=6$ initial conditions. These are given as the initial position $\mathbf{x}_0=(x_0, y_0, z_0)$ and the initial velocity $\mathbf{\dot{x}}_0=(\dot{x}_0, \dot{y}_0, \dot{z}_0)=(u_0, v_0, w_0) = \mathbf{v}_0$ of the particle.
+
+In order to solve the equations above numerically, they have to be rewritten as a set of six first order differential equations:
+\begin{subequations}	
+\begin{align}
+\dot{x} &= u\\
+\dot{y} &= v\\
+\dot{z} &= w\\
+\dot{u} &= \omega v-\frac{u}{\tau}\\
+\dot{v} &= -\omega u-\dfrac{v}{\tau}\\
+\dot{w} &= -\dfrac{w}{\tau}.
+\end{align}
+\end{subequations}
+
+Here, $\omega$ and $\tau$ are both set to the value of $5$, the initial position of the particle is defined as $\mathbf{x}_0=(0, 0, 0)$ and its initial velocity vector as $\mathbf{v}_0=(20, 0, 2)$.  The integration parameter $t$ is running from  $0$ to $25$ and the state vector is output at $1000$ points of the integration interval.
+\begin{verbatim}
+\pstVerb{
+  /wc 5 def
+  /tau 5 def
+}
+\pstODEsolve[algebraic]{particleXYZ}{0 1 2}{0}{25}{1000}{0 0 0 20 0 2}{
+  x[3] | x[4] | x[5] | wc*x[4] - x[3]/tau | -wc*x[3] - x[4]/tau | -x[5]/tau
+}
+\listplotThreeD{particleXYZ}
+\end{verbatim}
+Since we are interested in plotting the particle positions, only the first three components of the state vectors are stored in \Lkeyword{particleXYZ}.
+\begin{center}
+\psset{unit=0.8cm,Alpha=40,Beta=20}
+\begin{pspicture}(-10,-2)(6,13)
+\newpsstyle{vecteurA}{arrowinset=0.1,arrowsize=0.15,linecolor={[rgb]{0 0.5 1}}}
+\pstVerb{
+  /wc 5 def
+  /tau 5 def
+  /vx 20 def
+  /vz 2 def
+}
+\pstODEsolve[algebraic]{particleXYZ}{0 1 2}{0}{25}{1000}{0 0 0 vx 0 vz}{
+  y[3] | y[4] | y[5] | wc*y[4] - y[3]/tau | -wc*y[3] - y[4]/tau | -y[5]/tau
+}
+\listplotThreeD{particleXYZ}
+\pstThreeDNode(0,0,0){O}
+\pstThreeDNode(0,0,1){Z}
+\pstThreeDNode(1,0,0){X}
+\pstThreeDNode(0,1,0){Y}
+\pstThreeDNode(-5,-9,0){A}
+\pstThreeDNode(-5,-9,10){B}
+\pstThreeDNode(-5,2,10){C}
+\pstThreeDNode(-5,2,0){D}
+\pstThreeDNode(5,-9,0){E}
+\pstThreeDNode(5,-9,10){F}
+\pstThreeDNode(5,2,10){G}
+\pstThreeDNode(5,2,0){H}
+\pstThreeDNode(0,0,0){M0}
+\pstThreeDNode(vx 5 div,0,vz 5 div){V}
+\pstThreeDNode(vx 5 div,0,0){Vx}
+{\psset{linestyle=dashed}
+\pspolygon(A)(B)(C)(D)
+\pspolygon(E)(F)(G)(H)
+\psline(A)(E)
+\psline(B)(F)
+\psline(D)(H)
+\psline(C)(G)}%
+\psline[linecolor=red]{->}(M0)(V)
+\psline[linecolor=cyan]{->}(M0)(Vx)
+\uput{0.1}[l](V){\red$\overrightarrow{v}_0$}
+{\psset{linestyle=solid,linecolor=red}
+\psline[style=vecteurA]{->}(O)(X)
+\psline[style=vecteurA]{->}(O)(Y)
+\psline[style=vecteurA]{->}(O)(Z)}%
+\uput[u](Z){$z$}
+\uput[dl](X){$x$}
+\uput[r](Y){$y$}
+\end{pspicture}
+\end{center}
+
+\subsection[One more first order differential equation]{One more first order differential equation (\textattachfile{ode.tex}{ode.tex})}
+The aim of the last example is to demonstrate that precision does not depend on the number of output steps. We set only five output steps and plot the analytical solution against the numerical one for comparison. In this example, the integration parameter $t$ appears on the right-hand side of the ODE as well as in the output format description, since the solution $y$ shall be plotted against $t$.
+
+The equation to be solved here reads
+\begin{equation}
+y'=-2xy.
+\end{equation}
+With the initial condition $y(-1)=1/e$ the analytical solution is
+\begin{equation}
+y(x)=e^{-x^2}.
+\end{equation}
+\begin{verbatim}
+\pstODEsolve[algebraicIC,algebraic]{TY}{(t) 0}{-1}{3}{5}{1/Euler}{-2*t*y[0]}
+\listplot[plotstyle=dots]{TY}
+\end{verbatim}
+The integration parameter must be referred to as `\Lkeyword{t}' when writing the right-hand side of the differential equation, because `\Lkeyword{x[..]}' is already defined as the state vector and can be used instead of `\Lkeyword{y[..]}'. The initial condition is given as an algebraic expression, which requires option \Lkeyword{algebraicIC}; in \PS{} notation it would read `\Lkeyword{1 Euler div}'. The integration parameter and the one available state vector component are stored into the \PS{} object `\Lkeyword{TY}' by setting \Larg{output format} to `\Lkeyword{(t) 0}'.
+\begin{center}
+\psset{unit=3cm}
+\begin{pspicture}(-0.3,-0.4)(.2,1)%\psgrid
+  \psset{xAxisLabelPos={c,-5ex},yAxisLabelPos={-3ex,c}}
+  \begin{psgraph}[axesstyle=frame,Ox=-1,](0,0)(0,0)(4,1){10cm}{2.5cm}
+  \rput(1,0){\psplot[algebraic]{-1}{3}{Euler^(-x^2)}}
+  \pstODEsolve[algebraicIC,algebraic]{TY}{(t) 0}{-1}{3}{5}{1/Euler}{-2*t*y[0]}
+  \rput(1,0){\listplot[plotstyle=dots,dotsize=0.05,linecolor=red]{TY}}
+  \end{psgraph}
+\end{pspicture}
+\end{center}
+The plot contains the analytical solution and the five output points of the numerical solution as red dots. They lie exactly on the analytic solution.
+
+\section{Acknowledgements}
+I'd like to thank Manuel Luque for the inspiring examples on his site \url{http://pstricks.blogspot.fr}, some of which I used as a basis for this documentation.
+\end{document}

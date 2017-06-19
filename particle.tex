@@ -1,0 +1,55 @@
+\documentclass{article}
+\usepackage{pst-ode,pst-3dplot}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}%
+
+\begin{document}
+\begin{center}
+\psset{unit=0.74cm,Alpha=40,Beta=20}
+\begin{pspicture}(-10,-2)(6,13)
+\newpsstyle{vecteurA}{arrowinset=0.1,arrowsize=0.15,linecolor={[rgb]{0 0.5 1}}}
+\pstVerb{
+  /wc 5 def
+  /tau 5 def
+  /vx 20 def
+  /vz 2 def
+}
+\pstODEsolve[algebraic]{particleXYZ}{0 1 2}{0}{25}{1000}{0 0 0 vx 0 vz}{
+  y[3] | y[4] | y[5] | wc*y[4] - y[3]/tau | -wc*y[3] - y[4]/tau | -y[5]/tau
+}
+\listplotThreeD{particleXYZ}
+\pstThreeDNode(0,0,0){O}
+\pstThreeDNode(0,0,1){Z}
+\pstThreeDNode(1,0,0){X}
+\pstThreeDNode(0,1,0){Y}
+\pstThreeDNode(-5,-9,0){A}
+\pstThreeDNode(-5,-9,10){B}
+\pstThreeDNode(-5,2,10){C}
+\pstThreeDNode(-5,2,0){D}
+\pstThreeDNode(5,-9,0){E}
+\pstThreeDNode(5,-9,10){F}
+\pstThreeDNode(5,2,10){G}
+\pstThreeDNode(5,2,0){H}
+\pstThreeDNode(0,0,0){M0}
+\pstThreeDNode(vx 5 div,0,vz 5 div){V}
+\pstThreeDNode(vx 5 div,0,0){Vx}
+{\psset{linestyle=dashed}
+\pspolygon(A)(B)(C)(D)
+\pspolygon(E)(F)(G)(H)
+\psline(A)(E)
+\psline(B)(F)
+\psline(D)(H)
+\psline(C)(G)}%
+\psline[linecolor=red]{->}(M0)(V)
+\psline[linecolor=cyan]{->}(M0)(Vx)
+\uput{0.1}[l](V){\red$\overrightarrow{v}_0$}
+{\psset{linestyle=solid,linecolor=red}
+\psline[style=vecteurA]{->}(O)(X)
+\psline[style=vecteurA]{->}(O)(Y)
+\psline[style=vecteurA]{->}(O)(Z)}%
+\uput[u](Z){$z$}
+\uput[dl](X){$x$}
+\uput[r](Y){$y$}
+\end{pspicture}
+\end{center}
+\end{document}

@@ -1,0 +1,45 @@
+2017-06-16
+	* version 0.10
+	* more diagnostic terminal output for stepsize underflow
+
+2017-06-14
+	* version 0.9
+	* fix: occasional failure of the stepping routine (zero relative error)
+
+2017-06-12
+	* version 0.8
+	* fix: Integration step size underflow doesn't lead to ps2pdf crashing
+	anymore. Integration of the ODE(s) just stops prematurely.
+
+2014-10-20
+	* fix: typo in the documentation
+
+2014-03-27
+	* version 0.7
+	* change: internal variable defs put into dict for protection
+
+2013-11-26
+	* version 0.6
+	* fix: Postscript error with Distiller if errmax .eq. 0
+
+2013-11-11
+	* version 0.5
+	* fix: option prefixes
+
+2013-11-05
+	* version 0.4
+	* fix: some variables of the main PSTricks dictionary were not available in
+	\pstODEsolve arguments (such as Pi)
+	* new: options algebraicT and algebraicAll added
+
+2013-10-28
+	* version 0.3
+	* fix: internal PS variables were visible outside (wrong dictionary stack
+	order)
+
+2012-09-14
+	* version 0.2
+	* new: command option `algebraicOutputFormat' added
+
+2012-08-16
+	* initial release (v0.1) to CTAN

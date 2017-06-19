@@ -1,0 +1,50 @@
+\documentclass{article}
+\usepackage{pst-ode,pst-3dplot}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}%
+
+\begin{document}
+\begin{center}
+\pstVerb{
+  /alpha 10 def
+  /beta 28 def
+  /gamma 8 3 div def
+}%
+\pstODEsolve[
+  algebraic,
+%  saveData % Zuschalten der Option schreibt Ergebnis in lorenzXYZ.data
+            % erfordert ps2pdf -dNOSAFER 
+]{lorenzXYZ}{0 1 2}{0}{25}{2501}{10 10 30}{
+  alpha*(x[1]-x[0]) |
+  x[0]*(beta-x[2]) - x[1] |
+  x[0]*x[1] - gamma*x[2]
+}
+\fbox{\begin{pspicture}(-6,-2)(6,10)
+\psset{unit=0.17cm,Alpha=45,Beta=15}
+\listplotThreeD{lorenzXYZ}
+\psset{unit=0.425cm,linestyle=dashed}
+\pstThreeDNode(0,0,0){O}
+\pstThreeDNode(0,0,5){Z}
+\pstThreeDNode(5,0,0){X}
+\pstThreeDNode(0,5,0){Y}
+\pstThreeDNode(-10,-10,0){A}
+\pstThreeDNode(-10,-10,20){B}
+\pstThreeDNode(-10,10,20){C}
+\pstThreeDNode(-10,10,0){D}
+\pstThreeDNode(10,-10,0){E}
+\pstThreeDNode(10,-10,20){F}
+\pstThreeDNode(10,10,20){G}
+\pstThreeDNode(10,10,0){H}
+\pspolygon(A)(B)(C)(D)
+\pspolygon(E)(F)(G)(H)
+\psline(A)(E)
+\psline(B)(F)
+\psline(D)(H)
+\psline(C)(G)
+\psset{linestyle=solid,linecolor=red}
+\psline{->}(O)(X)
+\psline{->}(O)(Y)
+\psline{->}(O)(Z)
+\end{pspicture}}
+\end{center}
+\end{document}
