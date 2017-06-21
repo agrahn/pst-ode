@@ -164,7 +164,7 @@
     \else /formatoutput {[#2] assembleresult} def \fi%
     %perform ode integration
     (\string\n pstODEsolve (RKF45),\string\n) odeprint
-    (-/+ failed/successful step; "o" output step; "!" step size underflow (stop):\string\n) odeprint
+    (-/+ failed/successful step, "o" output step, "!" step size underflow (stop):\string\n) odeprint
     ode@dict
       /tcur tStart def % current parameter t value
       /tout tStart dt add def % next output t
