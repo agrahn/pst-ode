@@ -66,11 +66,11 @@
 \let\verbI\texttt
 
 
-\def\parsedate#1/#2/#3\relax{ 
-  \def\year{#1} 
-  \def\month{#2} 
-  \def\day{#3} 
-} 
+\def\parsedate#1/#2/#3\relax{
+  \def\year{#1}
+  \def\month{#2}
+  \def\day{#3}
+}
 
 \begin{document}
 %\author{Alexander Grahn}
@@ -82,7 +82,9 @@
 
 %\clearpage
 \begin{abstract}
-	\noindent The \LPack{pstricks-add} package already provides \Lcs{psplotDiffEqn} for solving ODEs. However, as its name suggests, the macro always produces a plot of the computed result. While any number of coupled differential equations can be integrated simultaneously, only two-dimensional plots are supported. The user has to select the two components of the computed state vectors to be used in the plot. Package \LPack{pst-ode} separates solving the equations from plotting the result. The result is stored as a \PS{} object and can be plotted later using macros from other PSTricks packages, such as \Lcs{listplot} (\LPack{pst-plot}) and \Lcs{listplotThreeD} (\LPack{pst-3dplot}), or be further processed by user-defined \PS{} procedures. Optionally, the computed state vectors can be written as a table to a text file.
+\noindent The \LPack{pstricks-add} package already provides \Lcs{psplotDiffEqn} for solving ODEs. However, as its name suggests, the macro always produces a plot of the computed result. While any number of coupled differential equations can be integrated simultaneously, only two-dimensional plots are supported. The user has to select the two components of the computed state vectors to be used in the plot.
+
+Package \LPack{pst-ode} separates solving the equations from plotting the result. The result is stored as a \PS{} object and can be plotted later using macros from other PSTricks packages, such as \Lcs{listplot} (\LPack{pst-plot}) and \Lcs{listplotThreeD} (\LPack{pst-3dplot}), or be further processed by user-defined \PS{} procedures. Optionally, the computed state vectors can be written as a table to a text file.
 
 Package \LPack{pst-ode} uses the Runge-Kutta-Fehlberg (RKF45) method with automatic step size control for integrating the differential equations. Thus, the precision of the result does not depend on the number of plot points specified, as it would be the case with the classical Runge-Kutta (RK4) method.
 \end{abstract}
@@ -92,17 +94,17 @@ Package \LPack{pst-ode} uses the Runge-Kutta-Fehlberg (RKF45) method with automa
 \section{Introduction}
 An initial value problem involves finding the solution $\mathbf{x}(t)$ of a set of first order differential equations
 \begin{equation}
-	\frac{\mathrm{d}\mathbf{x}}{\mathrm{d}t}=\mathbf{f}(t,\mathbf{x})
+    \frac{\mathrm{d}\mathbf{x}}{\mathrm{d}t}=\mathbf{f}(t,\mathbf{x})
 \end{equation}
 by integrating them with respect to the independent variable $t$ starting at $t_0$ up to $t_\mathrm{e}$. If the set consists of $n$ differential equations,
 a vector of initial conditions
 \begin{equation}
-	\mathbf{x}(t_0)=\mathbf{x}_0
+    \mathbf{x}(t_0)=\mathbf{x}_0
 \end{equation}
 of the same length $n$ is required. For $n=1$ the initial value problem is one-dimensional:
 \begin{gather}
-	\frac{\mathrm{d}x}{\mathrm{d}t}=f(t,x)\quad\text{for}\ t \in [t_0, t_\mathrm{e}]\text{, where}\label{eq:1dode}\\
-	x(t_0) = x_0.\label{eq:1ini}
+    \frac{\mathrm{d}x}{\mathrm{d}t}=f(t,x)\quad\text{for}\ t \in [t_0, t_\mathrm{e}]\text{, where}\label{eq:1dode}\\
+    x(t_0) = x_0.\label{eq:1ini}
 \end{gather}
 
 Instead of producing analytical expressions of the solution functions $\mathbf{x}(t)$, the numerical method gives only approximate values $\mathbf{x}_i$ at $N$ discrete points $t_i$ of the integration interval $I=[t_0, t_\mathrm{e}]$:
@@ -113,11 +115,11 @@ The computed approximations $\mathbf{x}_i$ of the solution as well as the initia
 
 \section{Commands}
 \begin{BDef}
-	\Lcs{pstODEsolve}\OptArgs\Largb{result}\Largb{output format}\Largb{$t_0$}\Largb{$t_\mathrm{e}$}\Largb{$N$}\Largb{$\mathbf{x}_0$}\Largb{$\mathbf{f}(t,\mathbf{x})$}
+    \Lcs{pstODEsolve}\OptArgs\Largb{result}\Largb{output format}\Largb{$t_0$}\Largb{$t_\mathrm{e}$}\Largb{$N$}\Largb{$\mathbf{x}_0$}\Largb{$\mathbf{f}(t,\mathbf{x})$}
 \end{BDef}
 is the main user command for solving initial value problems.
 
-The first mandatory argument \Larg{result} is a simple identifier composed of letters and possibly numbers. It is used to create a \PS{} object of the same name, which takes the computed state vectors $\mathbf{x}_i$, formatted according to the second argument \Larg{output format}, as a long list of values. \Larg{result} can be directly used as the \Larg{data} argument of \Lcs{listplot}\Largb{data} (package \LPack{pst-plot}) or \Lcs{listplotThreeD}\Largb{data} (package \LPack{pst-3dplot}). When put on the \PS{} operand stack, \Larg{result} is immediately executed, that is, the list of values contained in \Larg{result} is pushed onto the operand stack. The scope of \Larg{result} is global and thus its content survives page breaks.
+The first mandatory argument \Larg{result} is a simple identifier composed of letters and possibly numbers. It is the name of a \PS{} object that takes the computed state vectors $\mathbf{x}_i$, formatted according to the second argument \Larg{output format}, as a long list of values. \Larg{result} can be directly used as the \Larg{data} argument of \Lcs{listplot}\Largb{data} (package \LPack{pst-plot}) or \Lcs{listplotThreeD}\Largb{data} (package \LPack{pst-3dplot}). When put on the \PS{} operand stack, \Larg{result} is immediately executed, that is, the list of values contained in \Larg{result} is pushed onto the operand stack. The scope of \Larg{result} is global and thus its content survives page breaks.
 
 The second argument \Larg{output format} determines which of the components of the state vectors $\mathbf{x}_i$ and possibly the independent variable $t$ are stored into \Larg{result}. \Larg{output format} can be specified in two different formats, depending on the setting of the command option \Lkeyword{algebraicOutputFormat}.
 If \Lkeyword{algebraicOutputFormat} is set, calculations can be made on the components of the computed state vectors before writing them to \Larg{result}. Without option \Lkeyword{algebraicOutputFormat} the following applies: The keyword \Lkeyword{(t)} (parentheses required) inserts the integration parameter value $t_i$ into the result list; numbers (\Lkeyword{0}, \Lkeyword{1}, \Lkeyword{2}, \dots, $n-1$) in arbitrary order specify the components of vector $\mathbf{x}_i$ to be inserted, as well as their order of insertion. The elements of \Larg{output format} are to be separated by spaces. If option \Lkeyword{algebraicOutputFormat} is set, \Larg{output format} is a \Lkeyword{|}-separated list of algebraic expressions (infix notation) according to which the components of the output vector are to be calculated. In these algebraic expressions, the $n$ current state vector components can be referred to as \Lkeyword{x[0]}, \Lkeyword{x[1]}, \dots, \Lkeyword{x[}$n-1$\Lkeyword{]} or \Lkeyword{y[0]}, \Lkeyword{y[1]}, \dots, \Lkeyword{y[}$n-1$\Lkeyword{]}, and the current independent variable value as `\Lkeyword{t}'. In either case, there is no upper limit of the output vector length. It must have at least one element though.
@@ -154,7 +156,7 @@ The occurence of step size underflow is indicated by writing `\Lkeyword{!}' to t
 \begin{BDef}
 \Lcs{pstODEsaveState}\Largb{state}
 \end{BDef}
-is a user command to save the last computed state vector into a \PS{} object with global scope. \Larg{state} is an identifier composed of letters and possibly numbers which is used to create the \PS{} object of the same name. The object is executable, that is, it expands to the saved values of the state vector components. It can be used as the initial condition argument $\mathbf{x}_0$ of a later \Lcs{pstODEsolve} invocation, or to restore the state vector by means of \Lcs{pstODEsetOrRestoreState}.\\[1ex] 
+is a user command to save the last computed state vector into a \PS{} object with global scope. \Larg{state} is an identifier composed of letters and possibly numbers which is used to create the \PS{} object of the same name. The object is executable, that is, it expands to the saved values of the state vector components. It can be used as the initial condition argument $\mathbf{x}_0$ of a later \Lcs{pstODEsolve} invocation, or to restore the state vector by means of \Lcs{pstODEsetOrRestoreState}.\\[1ex]
 
 \begin{BDef}
 \Lcs{pstODEsetOrRestoreState}\Largb{state}
@@ -188,17 +190,17 @@ As the plot is three-dimensional, all three components of the state vectors are 
 
 \subsection[Charged particle movement in a vertical electrical field]{Charged particle movement in a vertical electrical field (\textattachfile{particle.tex}{particle.tex})}
 The trajectory $\mathbf{x}(t)$ of the particle shown below is governed by a set of three second order differential equations:
-\begin{subequations}	
+\begin{subequations}
 \begin{align}
 \ddot{x} &= \omega\dot{y}-\dfrac{\dot{x}}{\tau}\\
 \ddot{y} &= -\omega\dot{x}-\dfrac{\dot{y}}{\tau}\\
 \ddot{z} &= -\dfrac{\dot{z}}{\tau},
 \end{align}
-\end{subequations}	
+\end{subequations}
 where $\omega$ and $\tau$ are constants. An initial value problem of this type needs $3\times2=6$ initial conditions. These are given as the initial position $\mathbf{x}_0=(x_0, y_0, z_0)$ and the initial velocity $\mathbf{\dot{x}}_0=(\dot{x}_0, \dot{y}_0, \dot{z}_0)=(u_0, v_0, w_0) = \mathbf{v}_0$ of the particle.
 
 In order to solve the equations above numerically, they have to be rewritten as a set of six first order differential equations:
-\begin{subequations}	
+\begin{subequations}
 \begin{align}
 \dot{x} &= u\\
 \dot{y} &= v\\
