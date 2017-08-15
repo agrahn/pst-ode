@@ -12,8 +12,8 @@
 }%
 \pstODEsolve[
   algebraic,
-%  saveData % Zuschalten der Option schreibt Ergebnis in lorenzXYZ.data
-            % erfordert ps2pdf -dNOSAFER 
+%  saveData % enabling this writes table of results in file lorenzXYZ.data
+            % requires ps2pdf -dNOSAFER
 ]{lorenzXYZ}{0 1 2}{0}{25}{2501}{10 10 30}{
   alpha*(x[1]-x[0]) |
   x[0]*(beta-x[2]) - x[1] |

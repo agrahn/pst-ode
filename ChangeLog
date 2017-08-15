@@ -1,3 +1,9 @@
+2017-08-15
+	* version 0.11
+	* fix: imprecise t_out calculation
+	* new: option `dt0' and user command \pstODErestoreState added
+	* change: user command \pstODEsetOrRestoreState removed
+
 2017-06-16
 	* version 0.10
 	* more diagnostic terminal output for stepsize underflow

@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % PostScript prologue for pst-ode.tex.
-% Version 0.10, 2017/06/16
+% Version 0.11, 2017/08/15
 %
 % Alexander Grahn (C) 2012--today
 %
@@ -136,7 +136,8 @@ end
         % error: step size underflow in ODEINT
         (! t=) odeprint tcur odeprint
         % print & remove previous state vector
-        (, x=[ ) odeprint {odeprint ( ) odeprint} forall (]) odeprint
+        (, x=[) odeprint /ode@spc () def
+        {ode@spc odeprint /ode@spc ( ) def odeprint} forall (]) odeprint
         true
       }{
         (-) odeprint
@@ -152,11 +153,15 @@ end
     ode@dict
       /tcur tcur ddt add def
       dup 0 ne {pgrow exp 5 min sfty mul ddt mul /ddt exch def}{pop} ifelse
-      %output step completed?
-      tcur tout sub dt mul
+      tcur tout sub %output step completed?
     end
     0 ge {
-      (o) odeprint ode@dict /tcur tout def /tout tout dt add def end
+      (o) odeprint
+      ode@dict
+        /tcur tout def
+        /outStepCnt outStepCnt 1 add def
+        /tout tStart dt outStepCnt mul add def
+      end
     }{
       (+) odeprint ODEINT %continue integration
     } ifelse

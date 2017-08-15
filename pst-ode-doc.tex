@@ -3,7 +3,7 @@
 \usepackage[T1]{fontenc}
 %\usepackage{lmodern}
   \usepackage[tt=false]{libertine} %override beramono (doesn't look like tt font)
-  \usepackage[libertine]{newtxmath}
+  \usepackage{libertinust1math}
   %\usepackage[scaled=0.83]{luximono} %override beramono (doesn't look like tt font)
 \usepackage{attachfile2}
 \attachfilesetup{date={},color=1 0 0}
@@ -27,7 +27,7 @@
   /beta 28 def
   /gamma 8 3 div def
 }%
-\pstODEsolve[algebraic]{lorenzXYZ}{0 1 2}{0}{25}{2501}{10 10 30}{
+\pstODEsolve[algebraic,dt0=0.05]{lorenzXYZ}{0 1 2}{0}{25}{2501}{10 10 30}{
   alpha*(x[1]-x[0]) |
   x[0]*(beta-x[2]) - x[1] |
   x[0]*x[1] - gamma*x[2]
@@ -128,40 +128,52 @@ Arguments $t_0$ and $t_\mathrm{e}$ define the interval of integration $I=[t_0, t
 
 $N$ is the number of \emph{equally} spaced output points, including $t_0$ and $t_\mathrm{e}$; it must be $\ge 2$. In order to divide the interval of integration into $K$ output steps, $N$ must be set to $K+1$. Note that the precision of the solution does \emph{not} depend on $N$; internal integration steps are automatically inserted and resized according to the changes in the solution.
 
-$\mathbf{x}_0$ is a list of $n$ space separated initial values, one for each differential equation. Alternatively, $\mathbf{x}_0$ can be given as a \PS{} procedure pushing the initial values on the stack, or as an algebraic expression in infix notation where the elements are separated by `\Lkeyword{|}'. Infix notation requires option \Lkeyword{algebraicIC}. This argument can be left empty. In that case, the last computed state vector of a preceding \Lcs{pstODEsolve} call or a state vector that was set using the \Lcs{pstODEsetOrRestoreState} macro is used as initial condition. Of course, the number of equations $n$ must be the same as in the preceding calculation.
+$\mathbf{x}_0$ is a list of $n$ space separated initial values, one for each differential equation. Alternatively, $\mathbf{x}_0$ can be given as a \PS{} procedure pushing the initial values on the stack, or as an algebraic expression in infix notation where the elements are separated by `\Lkeyword{|}'. Infix notation requires option \Lkeyword{algebraicIC}. This argument can be left empty. In that case, the last computed state vector of a preceding \Lcs{pstODEsolve} call. Of course, the number of equations $n$ must be the same as in the preceding calculation.
 
-$\mathbf{f}(t,\mathbf{x})$ is the right-hand side of the differential equations. Equations can be entered in either infix or \PS{} (postfix, reverse polish) notation. Infix notation requires option \Lkeyword{algebraic}, and equations have to be separated by `\Lkeyword{|}'. The $n$ current state vector components can be referred to as \Lkeyword{x[0]}, \Lkeyword{x[1]}, \dots, \Lkeyword{x[}$n-1$\Lkeyword{]} or \Lkeyword{y[0]}, \Lkeyword{y[1]}, \dots, \Lkeyword{y[}$n-1$\Lkeyword{]}, and the current independent variable value as `\Lkeyword{t}'. If given in \PS{} notation, the provided procedure must first pop the current state vector components in reverse order(!) from the operand stack and then push the first derivatives in regular order back to it. Again, the independent variable value can be accessed using `\Lkeyword{t}'.\\[1ex]
-\Lcs{pstODEsolve} accepts a few \OptArgs: \Lkeyword{append}, \Lkeyword{saveData}, \Lkeyword{algebraicOutputFormat}, \Lkeyword{algebraicT}, \Lkeyword{algebraicIC}, \Lkeyword{algebraic}, \Lkeyword{algebraicAll}, \Lkeyword{silent} and \Lkeyword{varsteptol}.
+$\mathbf{f}(t,\mathbf{x})$ is the right-hand side of the differential equations. Equations can be entered in either infix or \PS{} (postfix, reverse polish) notation. Infix notation requires option \Lkeyword{algebraic}, and equations have to be separated by `\Lkeyword{|}'. The $n$ current state vector components can be referred to as \Lkeyword{x[0]}, \Lkeyword{x[1]}, \dots, \Lkeyword{x[}$n-1$\Lkeyword{]} or \Lkeyword{y[0]}, \Lkeyword{y[1]}, \dots, \Lkeyword{y[}$n-1$\Lkeyword{]}, and the current independent variable value as `\Lkeyword{t}'. If given in \PS{} notation, the provided procedure must first pop the current state vector components in reverse order(!) from the operand stack and then push the first derivatives in regular order back to it. Again, the independent variable value can be accessed using `\Lkeyword{t}'.%\\
 
-With \Lkeyword{append}, the computed result is appended to \Larg{result} which must already exist, e.\, g. from a previous use of \Lcs{pstODEsolve}. Usually, the initial condition vector argument is left empty in order to continue integration from the last computed or from a restored state (see \Lcs{pstODEsetOrRestoreState}).
+\newpage
+\noindent\Lcs{pstODEsolve} accepts a few \OptArgs:\\% \Lkeyword{dt0}, \Lkeyword{append}, \Lkeyword{saveData}, \Lkeyword{algebraicOutputFormat}, \Lkeyword{algebraicT}, \Lkeyword{algebraicIC}, \Lkeyword{algebraic}, \Lkeyword{algebraicAll}, \Lkeyword{silent} and \Lkeyword{varsteptol}.\\
 
-If option \Lkeyword{saveData} is set, the formatted state vectors are written as a table to a textfile named `\Larg{result}\Lkeyword{.dat}'. Note that \Lkeyword{ps2pdf} must be called with option \Lkeyword{-dNOSAFER} to enable writing of external files.
+\noindent\OptArg*{dt0=<number>}\\
+\noindent By default, the output step $(t_\mathrm{e}-t_\mathrm{0})/(N-1)$ is used as the intitial, tentative integration step size. A large initial step may cause the integration to crash early by numerical overflow, in particular if the right-hand side evaluates to large values. With option \Lkeyword{dt0}, an arbitrary value of the initial step size can be specified.\\
 
-With \Lkeyword{algebraicOutputFormat}, the command argument \Larg{output format} is a \Lkeyword{|}-separated list of algebraic expressions in infix notation, according to which the output vector components are to be assembled before storing them into \Larg{result}. Default is to not use algebraic infix expressions. For details, see the description of \Larg{output format} above.
+\noindent\OptArg*{append}\\
+If the initial condition argument $\mathbf{x}_0$ of \Lcs{pstODEsolve} is left empty, integration of an ODE continues from an already existing state, which was obtained by the most recent use of \Lcs{pstODEsolve} or which was re-instated from a previously saved state (\Lcs{pstODEsaveState}) by calling \Lcs{pstODErestoreState}. Keyword \Lkeyword{append} tells \Lcs{pstODEsolve} to append the computed result to \Larg{result} which must already exist.\\
 
-With \Lkeyword{algebraicT}, the integration interval limits $t_0$ and $t_\mathrm{e}$ can be entered as algebraic expressions in infix notation, otherwise \PS{} (postfix, reverse polish) notation must be used. Of course, single rational numbers for  $t_0$ and $t_\mathrm{e}$ always work.
+\noindent\OptArg*{saveData}\\
+If option \Lkeyword{saveData} is set, the formatted state vectors are written as a table to a textfile named `\Larg{result}\Lkeyword{.dat}'. Note that \Lkeyword{ps2pdf} must be called with option \Lkeyword{-dNOSAFER} to enable writing of external files.\\
 
-With \Lkeyword{algebraicIC}, the initial condition vector $\mathbf{x}_0$ can be given in algebraic infix notation. Vector components have to be separated by `\Lkeyword{|}'. Default is \PS{} notation, i.\,e. space separated postfix expressions or rational numbers.
+\noindent\OptArg*{algebraicOutputFormat}\\
+With \Lkeyword{algebraicOutputFormat}, the command argument \Larg{output format} is a \Lkeyword{|}-separated list of algebraic expressions in infix notation, according to which the output vector components are to be assembled before storing them into \Larg{result}. Default is to  \emph{not} use algebraic infix expressions. For details, see the description of \Larg{output format} above.\\
 
-With \Lkeyword{algebraic}, the right-hand side of differential equations $\mathbf{f}(t,\mathbf{x})$ can be given in infix notation. Algebraic infix expressions are to be separated by `\Lkeyword{|}'. Default is \PS{} notation.
+\noindent\OptArg*{algebraicT}\\
+With \Lkeyword{algebraicT}, the integration interval limits $t_0$ and $t_\mathrm{e}$ can be entered as algebraic expressions in infix notation, otherwise \PS{} (postfix, reverse polish) notation must be used. Of course, single rational numbers for  $t_0$ and $t_\mathrm{e}$ always work.\\
 
-Option \Lkeyword{algebraicAll} is equivalent to setting all of \Lkeyword{algebraicOutputFormat}, \Lkeyword{algebraicT}, \Lkeyword{algebraicIC}, \Lkeyword{algebraic}.
+\noindent\OptArg*{algebraicIC}\\
+With \Lkeyword{algebraicIC}, the initial condition vector $\mathbf{x}_0$ can be given in algebraic infix notation. Vector components have to be separated by `\Lkeyword{|}'. Default is \PS{} notation, i.\,e. space separated postfix expressions or rational numbers.\\
 
-Option \Lkeyword{silent} suppresses the terminal output of stepping information.
+\noindent\OptArg*{algebraic}\\
+With \Lkeyword{algebraic}, the right-hand side of differential equations $\mathbf{f}(t,\mathbf{x})$ can be given in infix notation. Algebraic infix expressions are to be separated by `\Lkeyword{|}'. Default is \PS{} notation.\\
 
-The tolerance for automatic calculation of the integration step size can be set with \Lkeyword{varsteptol} \Lkeyword{=}\Larg{value}. The default value is \Lkeyword{1e-6}. Sometimes, it may be helpful to relax this value in order to cope with situations where integration stops with step size underflow.
+\noindent\OptArg*{algebraicAll}\\
+Option \Lkeyword{algebraicAll} is equivalent to setting all of \Lkeyword{algebraicOutputFormat}, \Lkeyword{algebraicT}, \Lkeyword{algebraicIC}, \Lkeyword{algebraic}.\\
 
-The occurence of step size underflow is indicated by writing `\Lkeyword{!}' to the terminal and integration stops prematurely before reaching $t_\mathrm{e}$. The current value of $t$ and the current state vector $\mathbf{x}$ are written to the terminal. Step size underflow may happen for stiff ODEs at some point along the integration interval $[t_0, t_\mathrm{e}]$.\\[1ex]
+\noindent\OptArg*{silent}\\
+Option \Lkeyword{silent} suppresses the terminal output of stepping information.\\
+
+\noindent\OptArg*{varsteptol=<number>}\\
+The tolerance for automatic calculation of the integration step size can be set with \Lkeyword{varsteptol}. The default value is \Lkeyword{1e-6}. Sometimes, it may be helpful to relax this value in order to cope with situations where integration stops with step size underflow. The occurence of step size underflow is indicated by writing `\Lkeyword{!}' to the terminal and integration stops prematurely before reaching $t_\mathrm{e}$. The current value of $t$ and the current state vector $\mathbf{x}$ are written to the terminal. Step size underflow may happen for stiff ODEs at some point along the integration interval $[t_0, t_\mathrm{e}]$.\\[1ex]
 
 \begin{BDef}
 \Lcs{pstODEsaveState}\Largb{state}
 \end{BDef}
-is a user command to save the last computed state vector into a \PS{} object with global scope. \Larg{state} is an identifier composed of letters and possibly numbers which is used to create the \PS{} object of the same name. The object is executable, that is, it expands to the saved values of the state vector components. It can be used as the initial condition argument $\mathbf{x}_0$ of a later \Lcs{pstODEsolve} invocation, or to restore the state vector by means of \Lcs{pstODEsetOrRestoreState}.\\[1ex]
+is a user command to save the state of an integration at the end of a \Lcs{pstODEsolve} call. The saved state can be restored later, using \Lcs{pstODErestoreState}\Largb{state}, in order to continue the integration of an ODE. \Larg{state} is an identifier composed of letters and possibly numbers.\\[1ex]
 
 \begin{BDef}
-\Lcs{pstODEsetOrRestoreState}\Largb{state}
+\Lcs{pstODErestoreState}\Largb{state}
 \end{BDef}
-is a user command to set the current state vector from a user provided list of space separated values, or to restore a previously saved state. In the latter case, \Larg{state} is a \PS{} object previously created with \Lcs{pstODEsaveState}. After setting or restoring a state, \Lcs{pstODEsolve} can be called with an empty initial condition argument. Of course, the number of differential equations and the length of the set or restored state vector must match.
+is a user command to restore a previously saved state (\Lcs{pstODEsaveState}\Largb{state}). After restoring a state, \Lcs{pstODEsolve} can be called with an empty initial condition argument in order to continue integration of the ODE. Of course, the number of differential equations of the current and of the saved \Lcs{pstODEsolve} calls must be the same.
 
 \section{Examples}
 \subsection[Lorenz Attractor]{Lorenz Attractor (\textattachfile{lorenz.tex}{lorenz.tex})}
@@ -197,7 +209,7 @@ The trajectory $\mathbf{x}(t)$ of the particle shown below is governed by a set 
 \ddot{z} &= -\dfrac{\dot{z}}{\tau},
 \end{align}
 \end{subequations}
-where $\omega$ and $\tau$ are constants. An initial value problem of this type needs $3\times2=6$ initial conditions. These are given as the initial position $\mathbf{x}_0=(x_0, y_0, z_0)$ and the initial velocity $\mathbf{\dot{x}}_0=(\dot{x}_0, \dot{y}_0, \dot{z}_0)=(u_0, v_0, w_0) = \mathbf{v}_0$ of the particle.
+where $\omega$ and $\tau$ are constants. An initial value problem of this type needs $3\times2=6$ initial conditions. These are given as the initial position $\mathbf{x}_0=(x_0, y_0, z_0)$ and the initial velocity $\dot{\mathbf{x}}_0=(\dot{x}_0, \dot{y}_0, \dot{z}_0)=(u_0, v_0, w_0) = \mathbf{v}_0$ of the particle.
 
 In order to solve the equations above numerically, they have to be rewritten as a set of six first order differential equations:
 \begin{subequations}
