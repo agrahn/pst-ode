@@ -6,8 +6,8 @@
 % Alexander Grahn (C) 2012--today
 %
 % This program can be redistributed and/or modified under the terms
-% of the LaTeX Project Public License Distributed from CTAN archives
-% in directory macros/latex/base/lppl.txt.
+% of the LaTeX Project Public License Distributed from CTAN archives:
+% http://mirrors.ctan.org/tex-archive/macros/latex/base/lppl.txt
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 /tx@odeDict 1 dict def

@@ -13,6 +13,7 @@
 \usepackage{pst-plot}
 \usepackage{pstricks-add}
 \usepackage{pst-ode}
+\usepackage[ocgcolorlinks]{ocgx2}
 \let\pstFV\fileversion
 \let\belowcaptionskip\abovecaptionskip
 
@@ -176,7 +177,9 @@ is a user command to save the state of an integration at the end of a \Lcs{pstOD
 is a user command to restore a previously saved state (\Lcs{pstODEsaveState}\Largb{state}). After restoring a state, \Lcs{pstODEsolve} can be called with an empty initial condition argument in order to continue integration of the ODE. Of course, the number of differential equations of the current and of the saved \Lcs{pstODEsolve} calls must be the same.
 
 \section{Examples}
-\subsection[Lorenz Attractor]{Lorenz Attractor (\textattachfile{lorenz.tex}{lorenz.tex})}
+Complete and compilable example files are located in the \Verb+{TEXMFDIST}/doc/generic/pst-ode/examples+ directory.
+
+\subsection[Lorenz Attractor]{Lorenz Attractor \textattachfile{examples/lorenz.tex}{($\nearrow$lorenz.tex)}}
 The Lorenz Attractor depicted on the title page is governed by
 \begin{align*}
   \frac{\mathrm{d}x}{\mathrm{d}t}& = \alpha (y-x)\\
@@ -200,7 +203,7 @@ This system of differential equations is known to display chaotic behaviour due 
 \end{verbatim}
 As the plot is three-dimensional, all three components of the state vectors are stored in the \PS{} variable \Lkeyword{lorenzXYZ} by setting the \Larg{output format} argument to `\Lkeyword{0 1 2}'.
 
-\subsection[Charged particle movement in a vertical electrical field]{Charged particle movement in a vertical electrical field (\textattachfile{particle.tex}{particle.tex})}
+\subsection[Charged particle movement in a vertical electrical field]{Charged particle movement in a vertical electrical field \textattachfile{examples/particle.tex}{($\nearrow$particle.tex)}}
 The trajectory $\mathbf{x}(t)$ of the particle shown below is governed by a set of three second order differential equations:
 \begin{subequations}
 \begin{align}
@@ -284,7 +287,7 @@ Since we are interested in plotting the particle positions, only the first three
 \end{pspicture}
 \end{center}
 
-\subsection[One more first order differential equation]{One more first order differential equation (\textattachfile{ode.tex}{ode.tex})}
+\subsection[One more first order differential equation]{One more first order differential equation \textattachfile{examples/ode.tex}{($\nearrow$ode.tex)}}
 The aim of the last example is to demonstrate that precision does not depend on the number of output points. We set only five output points and plot the analytical solution against the numerical one for comparison.
 
 The ODE to be solved reads
@@ -320,4 +323,10 @@ The plot contains the analytical solution and the five output points of the nume
 
 \section{Acknowledgements}
 I'd like to thank Manuel Luque for the inspiring examples on his site \url{http://pstricks.blogspot.fr}, some of which I used as a basis for this documentation.
+
+\section{License}
+This package can be redistributed and/or modified under the terms
+of the \LaTeX Project Public License Distributed from CTAN archives:
+\url{http://mirrors.ctan.org/tex-archive/macros/latex/base/lppl.txt}
+
 \end{document}

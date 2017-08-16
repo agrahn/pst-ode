@@ -14,4 +14,4 @@ The initial condition vector **x**<sub>0</sub> and the right-hand side **f**`(`*
 
 `<result>` can be directly used as the `<data>` argument of `\listplot{<data>}` (package `pst-plot`) or `\listplotThreeD{<data>}` (package `pst-3dplot`).
 
-This material is subject to the [LaTeX Project Public License](LICENSE).
+This material is subject to the [LaTeX Project Public License](http://mirrors.ctan.org/tex-archive/macros/latex/base/lppl.txt).
