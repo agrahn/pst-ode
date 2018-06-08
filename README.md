@@ -2,7 +2,7 @@
 
 © 2012--`\today` Alexander Grahn
 
-https://github.com/agrahn/pst-ode
+**Notice:** I moved to [GitLab](https://gitlab.com/agrahn/pst-ode) recently.
 
 This package defines `\pstODEsolve` for solving initial value problems for sets of Ordinary Differential Equations (ODE) using the Runge-Kutta-Fehlberg (**`RKF45`**) method with automatic step size adjustment.
 
